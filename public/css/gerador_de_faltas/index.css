@@ -1,0 +1,34 @@
+.input-product {
+    font-family: inherit;;
+    width: 100%;
+    height: 100%;
+    background-color: #212529;
+    border: 0px;
+    padding: 0px;
+}
+
+.input-product-2 {
+    font-family: inherit;;
+    width: 100%;
+    height: 100%;
+    background-color: #6c757d;
+    border: 0px;
+    padding: 0px;
+    color: white;
+}
+
+.input-product-2::placeholder {
+    color: white;
+}
+
+.input-product:focus {
+    outline: none;
+}
+
+.input-product-2:focus {
+    outline: none;
+}
+
+.div-product {
+    padding: 5px;
+}

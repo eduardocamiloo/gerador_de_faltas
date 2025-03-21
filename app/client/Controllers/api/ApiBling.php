@@ -99,6 +99,7 @@ final class ApiBling
         if ($idOrder == "not_found") {
             header("Content-Type: application/json");
             echo json_encode(["error" => "ID do pedido não informado"]);
+            exit();
         } else {
             $url_api .= $idOrder;
         }
@@ -139,7 +140,7 @@ final class ApiBling
 
         foreach ($pedido['itens'] as $produto) {
             $data["produtos"][] = [
-                "id" => $produto['id'],
+                "idProduct" => $produto['produto']['id'],
                 "codigo" => $produto['codigo'],
                 "quantidade" => $produto['quantidade'],
                 "unidade" =>  $produto['unidade'],
@@ -149,6 +150,54 @@ final class ApiBling
 
         header("Content-Type: application/json");
 
+        echo json_encode($data);
+    }
+
+    public function completeFornecedor()
+    {
+        $url_api = "https://api.bling.com.br/Api/v3/produtos/";
+
+        $idProduct = ReceiveUrlParameters::receiveUrlParameters("idProduct") ?? "not_found";
+
+        if ($idProduct == "not_found") {
+            header("Content-Type: application/json");
+            echo json_encode(["error" => "ID do produto não informado"]);
+            exit();
+        } else {
+            $url_api .= $idProduct;
+        }
+
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $url_api,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'GET',
+            CURLOPT_HTTPHEADER => array(
+                'Accept: application/json',
+                'Authorization: Bearer ' . $_SESSION['bling_auth']['access_token'],
+            ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+
+        $result = json_decode($response, true);
+        $product = $result['data'];
+
+        $data = [
+            "idProduct" => $product['id'],
+            "idFornecedor" => $product['fornecedor']['contato']['id'],
+            "nomeFornecedor" => $product['fornecedor']['contato']['nome'],
+        ];
+
+        header("Content-Type: application/json");
         echo json_encode($data);
     }
 }

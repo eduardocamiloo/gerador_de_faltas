@@ -5,13 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <?php $view->callHeader("basic") ?>
+    <link rel="stylesheet" href="<?php echo $view->linkAsset("css/gerador_de_faltas/index.css") ?>">
     <title>Gerador de Faltas</title>
 </head>
 
 <body class="bg-body-tertiary">
     <?php $view->component("navbar") ?>
 
-    <main class="container d-none">
+    <main class="container d-block">
         <div id="content-0" style="display: block;">
             <div class="m-auto d-flex justify-content-center align-items-center" style="height: 80vh;">
                 <div style="width: 800px;">
@@ -87,50 +88,48 @@
                         </div>
                     </div>
 
+                    <div id="orders-2-content" style="display: none;">
+                        <div class="div-order-model" style="display: none;">
+                            <h3 class="h2 mb-4 title-order"></h3>
 
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <div class="container">
-        <div class="m-auto d-flex justify-content-center">
-            <div class="border border-1 rounded p-4 mb-5" style="width: 1100px;">
-                <div class="orders-2-content" style="display: block;">
-                    <div class="order-2-content">
-                        <h3 class="h2 mb-4">Gramados Vieira</h3>
-
-                        <div class="d-flex flex-row p-0 mx-2">
-                            <div class="bg-success d-flex justify-content-center align-items-center" style="width: 35px; height: 35px; border-radius: 8px; margin-right: 10px !important;">
-                                <span class="fw-bold">1</span>
-                            </div>
-
-                            <div class="p-0 bg-primary d-flex flex-row" style="height: 35px; width: calc(100% - 45px); border-radius: 8px">
-                                <div class="bg-info" style="width: 40%; height: 100%; border-radius: 8px 0 0 8px;">
-                                    Nome do produto selcionado texto texto
+                            <div class="d-flex flex-row p-0 mx-2 mb-2 div-pai-products-model" style="display: none !important;">
+                                <div class="bg-secondary d-flex justify-content-center align-items-center" style="width: 35px; height: 35px; border-radius: 8px; margin-right: 10px !important;">
+                                    <span class="fw-bold index-product"></span>
                                 </div>
-                                <div class="bg-warning" style="width: 12%; height: 100%">
-                                    Código pro
-                                </div>
-                                <div class="bg-danger" style="width: 8%; height: 100%">
-                                    UN pro
-                                </div>
-                                <div class="bg-secondary" style="width: 15%; height: 100%">
-                                    Qtd produo
-                                </div>
-                                <div class="bg-success" style="width: 20%; height: 100%">
-                                    Id poroduto fde
-                                </div>
-                                <div class="" style="width: 5%; height: 100%;">
-                                    Delet
+                                <div class="p-0 bg-dark d-flex flex-row div-products" style="height: 35px; width: calc(100% - 45px); border-radius: 8px">
+                                    <div class="border border-white div-product" style="width: 40%; height: 100%; border-radius: 8px 0 0 8px;">
+                                        <input type="text" class="input-product input-nome" placeholder="Nome do produto">
+                                    </div>
+                                    <div class="border border-white bg-secondary div-product" style="width: 12%; height: 100%">
+                                        <input type="text" class="input-product-2 input-codigo" placeholder="Código">
+                                    </div>
+                                    <div class="border border-white div-product" style="width: 8%; height: 100%">
+                                        <input type="text" class="input-product input-unidade" placeholder="Unidade">
+                                    </div>
+                                    <div class="border border-white bg-secondary div-product" style="width: 15%; height: 100%">
+                                        <input type="number" class="input-product-2 input-quantidade" placeholder="Quantidade">
+                                    </div>
+                                    <div class="border border-white div-product" style="width: 20%; height: 100%">
+                                        <input type="text" class="input-product input-id" placeholder="ID do Produto" readonly>
+                                    </div>
+                                    <div class="border border-white bg-secondary" style="width: 5%; height: 100%; border-radius: 0 8px 8px 0;">
+                                        <div class="d-flex w-100 h-100 justify-content-center align-items-center">
+                                            <i class="fa-solid fa-trash fs-4 text-danger icon-trash" style="cursor: pointer;"></i>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <button id="btn-create-list" class="btn btn-primary w-100 my-2" style="display: none;">Criar Romaneio <i class="fa-solid fa-file"></i></button>
+
+                    <div id="orders-3-content" style="display: none;">
+
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 
 
     <?php $view->component("bootstrapjs") ?>
