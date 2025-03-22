@@ -30,3 +30,9 @@ document.getElementById("option-3").addEventListener("mouseout", function () {
     document.getElementById("option-3-icon").classList.remove("text-primary");
     document.getElementById("option-3-text").classList.remove("text-primary");
 });
+
+function returnToOptions() {
+    document.getElementById("content-1").style.display = "none";
+    document.getElementById("content-0").style.display = "block";
+    
+}

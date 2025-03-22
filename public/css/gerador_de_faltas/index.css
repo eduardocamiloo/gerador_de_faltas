@@ -32,3 +32,23 @@
 .div-product {
     padding: 5px;
 }
+
+#progressBar {
+    width: 60%; /* Largura total */
+    height: 10px; /* Altura da barra */
+    appearance: none; /* Remove estilos padrão do navegador */
+}
+
+#progressBar::-webkit-progress-bar {
+    background-color: #e0e0e0; /* Cor de fundo */
+    border-radius: 50px; /* Cantos arredondados */
+}
+
+#progressBar::-webkit-progress-value {
+    background-color: #0d6efd; /* Cor da barra preenchida */
+    border-radius: 5px;
+}
+
+#progressBar::-moz-progress-bar {
+    background-color: #0d6efd; /* Cor da barra preenchida no Firefox */
+}

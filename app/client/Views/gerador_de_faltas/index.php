@@ -35,18 +35,34 @@
             </div>
         </div>
 
-        <div id="content-2" style="display: none;">
+        <div id="content-1" style="display: none;">
             <div class="m-auto d-flex justify-content-center">
                 <div class="border border-1 rounded p-4 mb-5" style="width: 1100px;">
-                    <div id="loading-content-orders" style="display: block;">
+                    <div id="loading-content-orders" style="display: none;">
                         <div class="d-flex justify-content-center align-items-center" style="height: 80vh;">
                             <div class="spinner-border text-primary fs-5" style="width: 60px; height: 60px" role="status"></div>
                         </div>
                     </div>
 
+                    <div id="loading-progress-bar" style="display: none;">
+                        <div class="d-flex justify-content-center align-items-center flex-column" style="height: 80vh;">
+                            <p id="loadingText" class="text-center text-white">Carregando...</p>
+                            <progress id="progressBar" value="0" max="100"></progress>
+                        </div>
+                    </div>
+
                     <div id="orders-content" style="display: none;">
+                        <div class="w-100 mb-2" style="height: 40px;">
+                            <button class="btn btn-outline-info float-start" id="btn-return-options"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
+                            <button class="btn btn-outline-info float-end" id="btn-return-content-2">Voltar <i class="fa-solid fa-arrow-right"></i></button>
+                        </div>
+
                         <p class="h2 mb-4">Selecione as vendas desejadas</p>
                         <div class="d-flex justify-content-start align-items-center mb-3">
+                            <p class="fw-bold d-inline my-0" style="margin-left: 10px;">Pedidos selecionados: <span id="pedidos-selecionados" class="text-info">0</span></p>
+
+                            <div class="d-inline mx-4" style="width: 2px; height: 40px; background-color: #f7f6f6; border-radius: 10px"></div>
+
                             <p class="fw-bold d-inline my-0" style="margin-left: 10px;">Página atual: <span id="current-page" class="text-info"></span></p>
 
                             <div class="d-inline mx-4" style="width: 2px; height: 40px; background-color: #f7f6f6; border-radius: 10px"></div>
@@ -79,8 +95,8 @@
 
                         <nav class="d-flex justify-content-center mt-3">
                             <ul class="pagination">
-                                <li class="page-item" id="page-previous-orders"><a href="#content-2" class="page-link">Anterior</a></li>
-                                <li class="page-item" id="page-next-orders"><a href="#content-2" class="page-link">Próximo</a></li>
+                                <li class="page-item" id="page-previous-orders"><a href="#content-1" class="page-link">Anterior</a></li>
+                                <li class="page-item" id="page-next-orders"><a href="#content-1" class="page-link">Próximo</a></li>
                             </ul>
                         </nav>
                         <div class="w-100 mt-0">
@@ -89,7 +105,12 @@
                     </div>
 
                     <div id="orders-2-content" style="display: none;">
-                        <div class="div-order-model" style="display: none;">
+                        <div class="w-100 mb-2" style="height: 40px;">
+                            <button class="btn btn-outline-info float-start" id="btn-return-selected-orders"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
+                            <button class="btn btn-outline-info float-end" id="btn-return-content-3">Voltar <i class="fa-solid fa-arrow-right"></i></button>
+                        </div>
+
+                        <div class="div-order-model w-100" style="display: none;">
                             <h3 class="h2 mb-4 title-order"></h3>
 
                             <div class="d-flex flex-row p-0 mx-2 mb-2 div-pai-products-model" style="display: none !important;">
@@ -124,7 +145,7 @@
                     <button id="btn-create-list" class="btn btn-primary w-100 my-2" style="display: none;">Criar Romaneio <i class="fa-solid fa-file"></i></button>
 
                     <div id="orders-3-content" style="display: none;">
-
+                        <button class="btn btn-outline-info mb-4" id="btn-return-modify-orders"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
                     </div>
                 </div>
             </div>
