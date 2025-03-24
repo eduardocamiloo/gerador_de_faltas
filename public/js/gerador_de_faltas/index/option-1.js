@@ -5,6 +5,9 @@ let pagina = 1;
 let idLoja = "not_found";
 let idSituacao = "not_found";
 
+const progressBar = document.getElementById("progressBar");
+const loadingText = document.getElementById("loadingText");
+
 async function getOrders(pagina = 1, idLoja = "not_found", idSituacao = "not_found") {
     let appApi = APP_URL + `api-bling/getOrders?pagina=${pagina}&idLoja=${idLoja}&idSituacao=${idSituacao}`;
 
@@ -116,9 +119,14 @@ async function getOrder(idOrder = "not_found") {
     }
 }
 
-const progressBar = document.getElementById("progressBar");
-
-async function fetchOrdersWithProgress(selectedOrders) {
+/**
+ * Função responsável por atualizar a barra de progresso entre as partes  1/3 e 2/3 do fluxo do sistema.
+ * É usada na parte 2/3 do fluxo do sistema.
+ * 
+ * @param {int} selectedOrders É a lista de pedidos selecionados.
+ * @returns Retorna a lista completa de produtos dos pedidos selecionados.
+ */
+async function searchOrdersWithProgress(selectedOrders) {
     let completed = 0;
     const total = selectedOrders.length;
 
@@ -139,8 +147,9 @@ async function fetchOrdersWithProgress(selectedOrders) {
     return results;
 }
 
-const loadingText = document.getElementById("loadingText");
-
+/**
+ * Função para remover qualquer conteúdo (content) da tela do usuário.
+ */
 function removeAllContents() {
     document.getElementById("loading-content-orders").style.display = "none";
     document.getElementById("loading-progress-bar").style.display = "none";
@@ -150,6 +159,9 @@ function removeAllContents() {
     document.getElementById("btn-create-list").style.display = "none";
 }
 
+/**
+ * Função para chamar a tela de carregamento simples (spinner).
+ */
 function callLoading() {
     document.getElementById("loading-content-orders").style.display = "block";
 }
@@ -179,6 +191,10 @@ async function completeFornecedor(idProduct = "not_found") {
     }
 }
 
+/**
+ * Função para atualizar a contagem de pedidos selecionados.
+ * - É usada na parte 1/3 do fluxo do sistema.
+ */
 function atualizarSelecaoPedidos() {
     let selectedOrdersTemporario = [];
 
@@ -205,21 +221,22 @@ function atualizarSelecaoPedidos() {
     document.getElementById("btn-return-content-2").disabled = true;
 }
 
+/**
+ * Evento do botão para retornar à parte 0/3 (opções) do fluxo do sistema (1 >> 0).
+ */
 document.getElementById("btn-return-options").addEventListener("click", function () {
     removeAllContents();
     callLoading();
     window.location.href = APP_URL + "gerador-de-faltas";
 });
 
-
-document.getElementById("option-1").addEventListener("click", async function () {
+/**
+ * Função que é chamada quando a página é carregada.
+ * - Função responsável pela primeira parte do fluxo do sistema.
+ * - 1/3 - Busca os pedidos do Bling.
+ */
+async function initializePage() {
     pedidos.length = 0;
-
-    document.getElementById("content-0").style.display = "none";
-    document.getElementById("content-1").style.display = "block";
-
-    removeAllContents();
-    callLoading();
 
     pedidos = await getOrders(pagina, idLoja, idSituacao);
     insertOrders(pedidos);
@@ -241,6 +258,8 @@ document.getElementById("option-1").addEventListener("click", async function () 
         checkboxes.forEach(checkbox => {
             checkbox.checked = this.checked;
         });
+
+        atualizarSelecaoPedidos();
     });
 
     document.getElementById("button-orders-bling").addEventListener("click", async function () {
@@ -363,14 +382,22 @@ document.getElementById("option-1").addEventListener("click", async function () 
         document.getElementById("loading-content-orders").style.display = "none";
         document.getElementById("orders-content").style.display = "block";
     });
-});
+}
 
+initializePage();
+
+/**
+ * Evento do botão para retornar à parte 2/3 do fluxo do sistema (1 >> 2).
+ */
 document.getElementById("btn-return-content-2").addEventListener("click", async function () {
     document.getElementById("orders-2-content").style.display = "block";
     document.getElementById("btn-create-list").style.display = "block";
     document.getElementById("orders-content").style.display = "none";
 });
 
+/**
+ * Evento do botão para retornar à parte 1/3 do fluxo do sistema (2 >> 1).
+ */
 document.getElementById("btn-return-selected-orders").addEventListener("click", async function () {
     document.getElementById("btn-return-content-2").style.display = "block";
     document.getElementById("btn-return-content-2").disabled = false;
@@ -379,10 +406,17 @@ document.getElementById("btn-return-selected-orders").addEventListener("click", 
     document.getElementById("btn-create-list").style.display = "none";
 });
 
+/**
+ * Evento acionado depois dos pedidos serem selecionados.
+ * - Função responsável pela segunda parte do fluxo do sistema.
+ * - 2/3 - Ver e modificar os produtos do pedido selecionado.
+ */
 document.getElementById("btn-submit-orders").addEventListener("click", async function () {
 
     document.getElementById("loading-progress-bar").style.display = "block";
     document.getElementById("orders-content").style.display = "none";
+
+    products = {};
 
     let dots = 3;
 
@@ -406,7 +440,7 @@ document.getElementById("btn-submit-orders").addEventListener("click", async fun
         hr.remove();
     });
 
-    const ordersToSearch = (await fetchOrdersWithProgress(selectedOrders))
+    const ordersToSearch = (await searchOrdersWithProgress(selectedOrders))
         .filter(order => order.status === "fulfilled")
         .map(order => order.value);
 
@@ -521,12 +555,18 @@ document.getElementById("btn-submit-orders").addEventListener("click", async fun
     progressBar.value = 0;
 });
 
+/**
+ * Evento do botão para retornar à parte 3/3 do fluxo do sistema (2 >> 3).
+ */
 document.getElementById("btn-return-content-3").addEventListener("click", async function () {
     document.getElementById("orders-2-content").style.display = "none";
     document.getElementById("btn-create-list").style.display = "none";
     document.getElementById("orders-3-content").style.display = "block";
 });
 
+/**
+ * Evento do botão para retornar à parte 2/3 do fluxo do sistema (3 >> 2).
+ */
 document.getElementById("btn-return-modify-orders").addEventListener("click", async function () {
     document.getElementById("btn-return-content-3").style.display = "block";
     document.getElementById("btn-return-content-3").disabled = false;
@@ -537,6 +577,11 @@ document.getElementById("btn-return-modify-orders").addEventListener("click", as
     document.getElementById("orders-3-content").style.display = "none";
 });
 
+/**
+ * Evento acionado depois dos produtos serem revisados.
+ * - Função responsável pela terceira parte do fluxo do sistema.
+ * - 3/3 - Visualização das mensagens.
+ */
 document.getElementById("btn-create-list").addEventListener("click", async function () {
     removeAllContents();
     document.getElementById("loading-progress-bar").style.display = "block";
@@ -563,15 +608,29 @@ document.getElementById("btn-create-list").addEventListener("click", async funct
         loadingText.innerHTML = "Carregando" + ".".repeat(dots);
     }, 500);
 
-    const total = Object.keys(products).length;
+    let uniqueProducts = {};
+
+    for (let chave in products) {
+        let { codigo, quantidade } = products[chave];
+    
+        // Se o código já existe no objeto final, apenas soma a quantidade
+        if (uniqueProducts[codigo]) {
+            uniqueProducts[codigo].quantidade += Number(quantidade);
+        } else {
+            // Se não existe, copia o objeto original
+            uniqueProducts[codigo] = { ...products[chave], quantidade: Number(quantidade) };
+        }
+    }
+
+    const total = Object.keys(uniqueProducts).length;
     let completed = 0;
 
-    await Promise.all(Object.entries(products).map(async (chave) => {
-        let idProduct = products[chave[0]].idProduct;
+    await Promise.all(Object.entries(uniqueProducts).map(async (chave) => {
+        let idProduct = uniqueProducts[chave[0]].idProduct;
         let fornecedorResponse = await completeFornecedor(idProduct);
 
-        products[chave[0]].fornecedor = fornecedorResponse.nomeFornecedor;
-        products[chave[0]].idFornecedor = fornecedorResponse.idFornecedor;
+        uniqueProducts[chave[0]].fornecedor = fornecedorResponse.nomeFornecedor;
+        uniqueProducts[chave[0]].idFornecedor = fornecedorResponse.idFornecedor;
 
         uniqueFornecedores.add(fornecedorResponse.idFornecedor);
 
@@ -583,34 +642,17 @@ document.getElementById("btn-create-list").addEventListener("click", async funct
     let ContentThree = document.getElementById("orders-3-content");
 
     uniqueFornecedores.forEach(async (idFornecedor) => {
-        let filteredProducts = Object.entries(products)
+        let filteredProducts = Object.entries(uniqueProducts)
             .filter(([key, product]) => product.idFornecedor === idFornecedor)
             .reduce((obj, [key, product]) => {
                 obj[key] = product;
                 return obj;
             }, {});
 
-        let productMap = {};
-
-        // Itera sobre os produtos e agrupa pelo código
-        Object.values(filteredProducts).forEach(product => {
-            const codigo = product.codigo;
-    
-            // Se o código já existir no map, soma a quantidade
-            if (productMap[codigo]) {
-                productMap[codigo].quantidade += product.quantidade;
-            } else {
-                // Se não existir, adiciona o produto
-                productMap[codigo] = { ...product };
-            }
-        });
-
-        console.log(productMap);
-
         let message = "";
 
-        for (let product in productMap) {
-            message += productMap[product].nome + " = " + productMap[product].quantidade + " " + productMap[product].unidade + "\n";
+        for (let product in filteredProducts) {
+            message += filteredProducts[product].nome + " = " + filteredProducts[product].quantidade + " " + filteredProducts[product].unidade + "\n";
         }
 
         let divFornecedor = document.createElement("div");
@@ -618,13 +660,13 @@ document.getElementById("btn-create-list").addEventListener("click", async funct
 
         let title = document.createElement("p");
         title.classList.add("h2", "mb-3");
-        title.innerHTML = productMap[Object.keys(productMap)[0]].fornecedor;
+        title.innerHTML = filteredProducts[Object.keys(filteredProducts)[0]].fornecedor;
 
         divFornecedor.appendChild(title);
 
         let textArea = document.createElement("textarea");
         textArea.classList.add("form-control");
-        textArea.rows = Object.keys(productMap).length + 1;
+        textArea.rows = Object.keys(filteredProducts).length + 1;
         textArea.value = message;
 
         divFornecedor.appendChild(textArea);

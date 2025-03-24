@@ -39,4 +39,8 @@ final class GeradorDeFaltas extends Controller
     {
         $this->view("gerador_de_faltas.index", null);
     }
+
+    public function byOrder(string|null $parameter) {
+        $this->view("gerador_de_faltas.byOrder", null);
+    }
 }

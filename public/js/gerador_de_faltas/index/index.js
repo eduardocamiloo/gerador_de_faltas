@@ -31,8 +31,6 @@ document.getElementById("option-3").addEventListener("mouseout", function () {
     document.getElementById("option-3-text").classList.remove("text-primary");
 });
 
-function returnToOptions() {
-    document.getElementById("content-1").style.display = "none";
-    document.getElementById("content-0").style.display = "block";
-    
-}
+document.getElementById("option-1").addEventListener("click", function () {
+    window.location.href = APP_URL + "gerador-de-faltas/byOrder";
+});
