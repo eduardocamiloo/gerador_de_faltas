@@ -13,7 +13,7 @@
     <?php $view->component("navbar") ?>
     <main>
         <div class="m-auto d-flex justify-content-center">
-            <div class="border border-1 rounded p-4 mb-5" style="width: 1100px;">
+            <div class="border border-1 rounded p-4 mb-2" style="width: 1100px;">
                 <div id="loading-content-orders" style="display: block;">
                     <div class="d-flex justify-content-center align-items-center" style="height: 80vh;">
                         <div class="spinner-border text-primary fs-5" style="width: 60px; height: 60px" role="status"></div>
@@ -126,6 +126,8 @@
             </div>
         </div>
     </main>
+    <p class="text-center">Encontrou algum erro? <a href="#">Por favor, compartilhe conosco</a>.</p>
+
 
     <?php $view->component("bootstrapjs") ?>
     <script src="<?php echo $view->linkAsset("js/gerador_de_faltas/index/option-1.js") ?>"></script>

@@ -1,125 +1,199 @@
+/* Variável que armazena uma lista de ids de pedidos selecionados. (1/3 e 2/3 (uma vez)) */
 let selectedOrders = [];
+
+/** Variável que armazena uma tabela hash de produtos dos pedidos selecionados. (2/3 e 3/3) */
 let products = {};
+
+/** Variável que armazena os pedidos buscados no Bling. (1/3) */
 let pedidos = [];
+
+/** Variável que armazena a página em que se deseja buscar os pedidos. (1/3) */
 let pagina = 1;
+
+/** Variável que armazena o id da loja do pedido. (1/3) */
 let idLoja = "not_found";
+
+/** Variável que armazena o id da situação do pedido. (1/3) */
 let idSituacao = "not_found";
 
+/** Variável que contém o objeto HTML da barra de progresso. Usada entre 1/3 e 2/3 e entre 2/3 e 3/3 do fluxo do sistema. */
 const progressBar = document.getElementById("progressBar");
+
+/** Variável que contém o objeto HTML do texto acima da barra de progresso. Usada entre 1/3 e 2/3 e entre 2/3 e 3/3 do fluxo do sistema. */
 const loadingText = document.getElementById("loadingText");
 
+/**
+ * Busca a lista de pedidos do Bling.
+ * - É usada na parte 1/3 do fluxo do sistema.
+ * @param {int} pagina É a página em que se deseja buscar os pedidos.
+ * @param {int|string} idLoja É o id de loja em que o produto foi criado (0 -> Bling).
+ * @param {int|string} idSituacao É o id da situação do pedido (6 -> Em aberto, 9 -> Atendido, 12 -> Cancelado, ...).
+ * @returns Reorna uma lista de pedidos.
+ */
 async function getOrders(pagina = 1, idLoja = "not_found", idSituacao = "not_found") {
+    // Completa o endpoint da API com os parâmetros de busca.
     let appApi = APP_URL + `api-bling/getOrders?pagina=${pagina}&idLoja=${idLoja}&idSituacao=${idSituacao}`;
 
     try {
-        const response = await fetch(appApi, {
-            method: 'GET'
-        });
-
-        if (!response.ok) {
-            throw new Error('Erro na resposta da requisição');
-        }
-
-        const data = await response.json();
-
-        return data;
-    } catch (error) {
-        alert("Erro ao buscar os pedidos.");
-        console.log(error);
-    }
-}
-
-function insertOrders(pedidos) {
-    document.getElementById("t-body-orders").innerHTML = "";
-
-    pedidos.forEach(pedido => {
-        let tableRow = document.createElement("tr");
-
-        let checkboxTd = document.createElement("td");
-        let checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.classList.add("form-check-input");
-        checkbox.value = pedido.id;
-
-        checkboxTd.appendChild(checkbox);
-        tableRow.appendChild(checkboxTd);
-
-        if (selectedOrders.includes(checkbox.value)) {
-            checkbox.checked = true;
-        }
-
-        let numero = document.createElement("td");
-        numero.innerHTML = pedido.numero;
-
-        dataArray = pedido.data.split("-");
-
-        let data = document.createElement("td");
-        data.innerHTML = dataArray[2] + "/" + dataArray[1] + "/" + dataArray[0];
-
-        let cliente = document.createElement("td");
-        cliente.innerHTML = pedido.cliente;
-
-        let valor = document.createElement("td");
-        valor.innerHTML = pedido.valor;
-
-        let situacoes = {
-            "6": "Em aberto",
-            "9": "Atendido",
-            "12": "Cancelado",
-        }
-
-        let situacao = document.createElement("td");
-        situacao.innerHTML = situacoes[pedido.situacao] ?? pedido.situacao;
-
-        tableRow.appendChild(numero);
-        tableRow.appendChild(data);
-        tableRow.appendChild(cliente);
-        tableRow.appendChild(valor);
-        tableRow.appendChild(situacao);
-
-        document.getElementById("t-body-orders").appendChild(tableRow);
-    });
-}
-
-function saveOrdersSelected() {
-    const selectedCheckboxes = document.querySelectorAll("#t-body-orders input[type='checkbox']");
-
-    selectedCheckboxes.forEach(checkbox => {
-        if (checkbox.checked) {
-            if (!selectedOrders.includes(checkbox.value)) {
-                selectedOrders.push(checkbox.value);
-            }
-        } else {
-            selectedOrders = selectedOrders.filter(order => order !== checkbox.value);
-        }
-    });
-};
-
-async function getOrder(idOrder = "not_found") {
-    let appApi = APP_URL + `api-bling/getProducts?idOrder=${idOrder}`;
-
-    try {
+        // Faz a requisição GET para a API.
         const response = await fetch(appApi, {
             method: 'GET'
         });
 
         // Verifica se a resposta foi bem-sucedida
         if (!response.ok) {
+            // Caso não seja, lança um erro.
             throw new Error('Erro na resposta da requisição');
         }
 
+        // Converte a resposta em JSON.
         const data = await response.json();
 
+        // Retorna os pedidos.
         return data;
     } catch (error) {
         alert("Erro ao buscar os pedidos.");
         console.log(error);
-        // Garante que o carregamento seja ocultado mesmo em erro
-        document.getElementById("loading-content-orders").style.display = "none";
     }
 }
 
 /**
+ * Insere cada pedido em uma linha na tabela de pedidos.
+ * - É usada na parte 1/3 do fluxo do sistema.
+ * @param {array|object} pedidos São os pedidos que foram buscados na @function getOrders.
+ */
+function insertOrders(pedidos) {
+    // Limpa a tabela de pedidos.
+    document.getElementById("t-body-orders").innerHTML = "";
+
+    // Percorre a lista de pedidos e insere cada pedido em uma linha da tabela.
+    pedidos.forEach(pedido => {
+        // Cria uma nova linha na tabela.
+        let tableRow = document.createElement("tr");
+
+        // Cria uma célula para o checkbox.
+        let checkboxTd = document.createElement("td");
+
+        // Cria um checkbox.
+        let checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.classList.add("form-check-input");
+
+        // O valor do checkbox é o id do pedido.
+        checkbox.value = pedido.id;
+
+        // Adiciona o checkbox à célula.
+        checkboxTd.appendChild(checkbox);
+
+        // Adiciona a célula do checkbox à linha.
+        tableRow.appendChild(checkboxTd);
+
+        // Caso o pedido tenha sido selecionado, marca o checkbox (serve para ele ser marcado quando um filtro ou paginação for ativada).
+        if (selectedOrders.includes(checkbox.value)) {
+            checkbox.checked = true;
+        }
+
+        // Cria uma célula para o número do pedido e adiciona o valor.
+        let numero = document.createElement("td");
+        numero.innerHTML = pedido.numero;
+
+        // Divide a data em um array de três partes (ano, mês e dia).
+        dataArray = pedido.data.split("-");
+
+        // Cria uma célula para a data e adiciona o valor.
+        let data = document.createElement("td");
+        data.innerHTML = dataArray[2] + "/" + dataArray[1] + "/" + dataArray[0];
+
+        // Cria uma célula para o cliente e adiciona o valor.
+        let cliente = document.createElement("td");
+        cliente.innerHTML = pedido.cliente;
+
+        // Cria uma célula para o valor e adiciona o valor.
+        let valor = document.createElement("td");
+        valor.innerHTML = pedido.valor;
+
+        // Tabela hash de situações catalogadas.
+        let situacoes = {
+            "6": "Em aberto",
+            "9": "Atendido",
+            "12": "Cancelado",
+        }
+
+        // Cria uma célula para a situação.
+        let situacao = document.createElement("td");
+
+        // Caso a situação não seja catalogada, adiciona o valor normal da situação.
+        situacao.innerHTML = situacoes[pedido.situacao] ?? pedido.situacao;
+
+        // Adiciona as células à linha.
+        tableRow.appendChild(numero);
+        tableRow.appendChild(data);
+        tableRow.appendChild(cliente);
+        tableRow.appendChild(valor);
+        tableRow.appendChild(situacao);
+
+        // Adiciona a linha à tabela.
+        document.getElementById("t-body-orders").appendChild(tableRow);
+    });
+}
+
+/**
+ * Função responsável por salvar  os pedidos selecionados no array "selectedOrders".
+ * - É usada na parte 1/3 do fluxo do sistema, e no começo da parte 2/3 (1 vez).
+ * - Acionada quando algum filtro ou paginação é clicada.
+ */
+function saveOrdersSelected() {
+    // Recebe todos os checkboxes da tabela de pedidos.
+    const selectedCheckboxes = document.querySelectorAll("#t-body-orders input[type='checkbox']");
+
+    // Percorre todos os checkboxes.
+    selectedCheckboxes.forEach(checkbox => {
+        // Caso o checkbox esteja marcado, adiciona o id do pedido ao array "selectedOrders".
+        if (checkbox.checked) {
+            // Caso o pedido já esteja no array, não adiciona novamente.
+            if (!selectedOrders.includes(checkbox.value)) {
+                selectedOrders.push(checkbox.value);
+            }
+        } else {
+            // Caso o pedido não esteja no array, remove o id do pedido do array "selectedOrders".
+            selectedOrders = selectedOrders.filter(order => order !== checkbox.value);
+        }
+    });
+};
+
+/**
+ * Função responsável por buscar e retornar um pedido específico.
+ * @param {int|string} idOrder É o id do pedido que será buscado.
+ * @returns Retorna o pedido de acordo com o idOrder (id).
+ */
+async function getOrder(idOrder = "not_found") {
+    // Completa o endpoint da API.
+    let appApi = APP_URL + `api-bling/getProducts?idOrder=${idOrder}`;
+
+    try {
+        // Faz a requisição GET à API.
+        const response = await fetch(appApi, {
+            method: 'GET'
+        });
+
+        // Verifica se a resposta foi bem-sucedida.
+        if (!response.ok) {
+            // Caso não, lança um erro.
+            throw new Error('Erro na resposta da requisição');
+        }
+
+        // Converte a resposta para JSON.
+        const data = await response.json();
+
+        // Retorna o pedido.
+        return data;
+    } catch (error) {
+        alert("Erro ao buscar os pedidos.");
+        console.log(error);
+    }
+}
+
+/** Não documentada!!!!!!!!!!!!!!!
  * Função responsável por atualizar a barra de progresso entre as partes  1/3 e 2/3 do fluxo do sistema.
  * É usada na parte 2/3 do fluxo do sistema.
  * 
@@ -127,10 +201,14 @@ async function getOrder(idOrder = "not_found") {
  * @returns Retorna a lista completa de produtos dos pedidos selecionados.
  */
 async function searchOrdersWithProgress(selectedOrders) {
+    // Variável que guarda quantas requiisções foram concluídas.
     let completed = 0;
+
+    // Variável que guarda o total de requisições necessárias.
     const total = selectedOrders.length;
 
 
+    // Função que atualiza a barra de progresso.
     const updateProgress = () => {
         completed++;
         progressBar.value = (completed / total) * 100;
@@ -151,43 +229,55 @@ async function searchOrdersWithProgress(selectedOrders) {
  * Função para remover qualquer conteúdo (content) da tela do usuário.
  */
 function removeAllContents() {
+    // Remove o content de loading simples (spinner).
     document.getElementById("loading-content-orders").style.display = "none";
+
+    // Remove o content de loading com barra de progresso.
     document.getElementById("loading-progress-bar").style.display = "none";
+
+    // Remove o content da parte  1/3 do fluxo do sistema.
     document.getElementById("orders-content").style.display = "none";
+
+    // Remove o content da parte 2/3 do fluxo do sistema.
     document.getElementById("orders-2-content").style.display = "none";
-    document.getElementById("orders-3-content").style.display = "none";
+
+    // Remove o botão de criar lista da parte 2/3 do fluxo do sistema.
     document.getElementById("btn-create-list").style.display = "none";
+
+    // Remove o content da parte 3/3 do fluxo do sistema.
+    document.getElementById("orders-3-content").style.display = "none";
 }
 
 /**
- * Função para chamar a tela de carregamento simples (spinner).
+ * Função responsável por buscar e retornar o fornecedor de um produto específico.
+ * - É usada na parte 3/3 do fluxo do sistema.
+ * @param {int|string} idProduct É o id do produto que será buscado.
+ * @returns Retorna o id e nome do fornecedor do produto.
  */
-function callLoading() {
-    document.getElementById("loading-content-orders").style.display = "block";
-}
-
 async function completeFornecedor(idProduct = "not_found") {
-
+    // Completa o endpoint da API.
     let appApi = APP_URL + `api-bling/completeFornecedor?idProduct=${idProduct}`;
 
     try {
+        // Faz a requisição GET à API.
         const response = await fetch(appApi, {
             method: 'GET'
         });
 
-        // Verifica se a resposta foi bem-sucedida
+        // Verifica se a resposta foi bem-sucedida.
         if (!response.ok) {
+            // Caso não, lança um erro.
             throw new Error('Erro na resposta da requisição');
         }
 
+        // Converte a resposta para JSON.
         const data = await response.json();
 
+        // Retorna o id e nome do fornecedor do produto.
         return data;
     } catch (error) {
         alert("Erro ao buscar os pedidos.");
         console.log(error);
-        // Garante que o carregamento seja ocultado mesmo em erro
-        document.getElementById("loading-content-orders").style.display = "none";
     }
 }
 
@@ -196,28 +286,39 @@ async function completeFornecedor(idProduct = "not_found") {
  * - É usada na parte 1/3 do fluxo do sistema.
  */
 function atualizarSelecaoPedidos() {
+    // Cria uma lista de pedidos selecionados (temporariiamente), até que a função "saveSelectedOrders" seja executada.
     let selectedOrdersTemporario = [];
 
+    // Percorre todos os checkboxes do tbody e verifica se o checkbox está marcado.
     document.querySelectorAll("#t-body-orders input[type='checkbox']").forEach(checkbox => {
         if (checkbox.checked) {
+            // Se estiver marcado, verifica se o pedido já está na lista de pedidos selecionados.
             if (!selectedOrders.includes(checkbox.value)) {
+                // Caso não esteja, adiciona um (1) a lista de pedidos selecionados.
                 selectedOrdersTemporario.push(1);
             }
         } else {
+            // Caso não esteja marcado, verifica se o pedido está na lista de pedidos selecionados.
             if (selectedOrders.includes(checkbox.value)) {
+                // Caso esteja, adiciona menos um (-1) da lista de pedidos selecionados.
                 selectedOrdersTemporario.push(-1);
             }
         }
     });
 
+    // Variável que guarda a soma dos pedidos selecionados (temporariamente).
     let somaTemporaria = 0;
 
+    // Percorre todos os pedidos selecionados (temporariamente).
     selectedOrdersTemporario.forEach(item => {
+        // Soma a lista.
         somaTemporaria += item;
     });
 
-
+    // Atualiza a contagem de pedidos selecionados, que serão os salvos + os salvos temporariamente.
     document.getElementById("pedidos-selecionados").innerHTML = selectedOrders.length + somaTemporaria;
+
+    // O Botão para retornar a parte 2/3 é desabilitada, pois o usuário terá que seguir o fluxo comum.
     document.getElementById("btn-return-content-2").disabled = true;
 }
 
@@ -225,8 +326,13 @@ function atualizarSelecaoPedidos() {
  * Evento do botão para retornar à parte 0/3 (opções) do fluxo do sistema (1 >> 0).
  */
 document.getElementById("btn-return-options").addEventListener("click", function () {
+    // Chama função para remover todos os conteúdos da tela.
     removeAllContents();
-    callLoading();
+
+    // Mostra a tela de loading.
+    document.getElementById("loading-content-orders").style.display = "block";
+
+    // Redireciona para a página inicial do Gerador de Faltas.
     window.location.href = APP_URL + "gerador-de-faltas";
 });
 
@@ -236,154 +342,240 @@ document.getElementById("btn-return-options").addEventListener("click", function
  * - 1/3 - Busca os pedidos do Bling.
  */
 async function initializePage() {
+    // Zerar o array de pedidos do Bling.
     pedidos.length = 0;
 
+    // Busca os pedidos do Bling.
     pedidos = await getOrders(pagina, idLoja, idSituacao);
+
+    // Insere os pedidos na tabela.
     insertOrders(pedidos);
 
+    // Atualiza qual a página atual (aqui sempre será a 1).
     document.getElementById("current-page").innerHTML = pagina;
 
+    // Remove a tela de loading e adiciona a tela/tabela de pedidos (1/3).
     document.getElementById("loading-content-orders").style.display = "none";
     document.getElementById("orders-content").style.display = "block";
 
+    // O botão de "página anterior" começa desabilitado (porque começamos na página 1).
     document.getElementById("page-previous-orders").classList.add("disabled");
+
+    // O botão de "retornar a parte 2/3" começa invisível.
     document.getElementById("btn-return-content-2").style.display = "none";
 
+    // Adicionar o evento de clique em qualquer checkbox de pedido.
     document.querySelectorAll("#t-body-orders input[type='checkbox']").forEach(checkbox => {
+        // Chama a função de atualização da contagem de pedidos selecionados.
         checkbox.addEventListener("change", atualizarSelecaoPedidos);
     });
 
+
+    // Eventos da tabela/página:
+
+    // Adicionar o evento de clique no checkbox de "Todos".
     document.getElementById("form-check-all").addEventListener("click", function () {
+        // Recebe todos os checkboxes.
         const checkboxes = document.querySelectorAll("#t-body-orders input[type='checkbox']");
+
+        // Ativa ou desativa todos os checkboxes com base no estado do checkbox "Todos".
         checkboxes.forEach(checkbox => {
             checkbox.checked = this.checked;
         });
 
+        // Chama a função de atualização da contagem de pedidos selecionados.
         atualizarSelecaoPedidos();
     });
 
+
+    // Adicionar o evento de clique no botão de "Somente Bling".
     document.getElementById("button-orders-bling").addEventListener("click", async function () {
+        // Caso o botão não esteja ativo e for clicado, deverá buscar os pedidos somente do Bling.
         if (!this.classList.contains("active")) {
+            // Para buscar os pedidos do Bling, o idLoja deve ser 0.
             idLoja = 0;
+
+            // Zera o array de pedidos do Bling.
             pedidos = [];
+
+            // Adiciona a tela de loading e remove a tela/tabela de pedidos (1/3).
             document.getElementById("loading-content-orders").style.display = "block";
             document.getElementById("orders-content").style.display = "none";
 
+            // Salva os pedidos selecionados.
             saveOrdersSelected();
 
-            document.getElementById("t-body-orders").innerHTML = "";
+            // Busca os pedidos do Bling.
             pedidos = await getOrders(pagina, idLoja, idSituacao);
+
+            // Insere os pedidos na tabela.
             insertOrders(pedidos);
 
+            // Adiciona a classe de ativo (pois agora está buscando somente pedidos do Bling).
             this.classList.add("active");
 
+            // Coloca novamente o evento de clique em qualquer checkbox de pedido.
             document.querySelectorAll("#t-body-orders input[type='checkbox']").forEach(checkbox => {
+                // Chama a função de atualização da contagem de pedidos selecionados.
                 checkbox.addEventListener("change", atualizarSelecaoPedidos);
             });
 
+            // Remove a tela de loading e adiciona a tela/tabela de pedidos (1/3).
             document.getElementById("loading-content-orders").style.display = "none";
             document.getElementById("orders-content").style.display = "block";
         } else {
+            // Caso o botão esteja ativo e for clicado, deverá buscar todos os pedidos (qualquer loja).
+
+            // Para buscar TODOS os pedidos de qualquer loja, o idLoja deve ser "not_found".
             idLoja = "not_found";
+
+            // Zera o array de pedidos do Bling.
             pedidos = [];
+
+            // Adiciona a tela de loading e remove a tela/tabela de pedidos.
             document.getElementById("loading-content-orders").style.display = "block";
             document.getElementById("orders-content").style.display = "none";
 
+            // Salva os pedidos selecionados.
             saveOrdersSelected();
 
-            document.getElementById("t-body-orders").innerHTML = "";
+            // Busca os pedidos do Bling.
             pedidos = await getOrders(pagina, idLoja, idSituacao);
+
+            // Insere os pedidos na tabela.
             insertOrders(pedidos);
 
+            // Remove a classe de ativo (pois agora está buscando todos os pedidos).
             this.classList.remove("active");
 
+            // Coloca novamente o evento de clique em qualquer checkbox de pedido.
             document.querySelectorAll("#t-body-orders input[type='checkbox']").forEach(checkbox => {
+                // Chama a função de atualização da contagem de pedidos selecionados.
                 checkbox.addEventListener("change", atualizarSelecaoPedidos);
             });
 
+            // Remove a tela de loading e adiciona a tela/tabela de pedidos (1/3).
             document.getElementById("loading-content-orders").style.display = "none";
             document.getElementById("orders-content").style.display = "block";
         }
     });
 
+    // Adiciona o evento de mudança de seleção de opção no select "situação do pedido".
     document.getElementById("situacao-order").addEventListener("change", async function () {
+        // O id da situação do pedido é o valor do select que foi selecionado.
         idSituacao = this.value;
+
+        // Zera o array de pedidos do Bling.
         pedidos = [];
 
+        // Adiciona a tela de loading e remove a tela/tabela de pedidos (1/3).
         document.getElementById("loading-content-orders").style.display = "block";
         document.getElementById("orders-content").style.display = "none";
 
+        // Salva os pedidos selecionados.
         saveOrdersSelected();
 
-        document.getElementById("t-body-orders").innerHTML = "";
+        // Busca os pedidos do Bling.
         pedidos = await getOrders(pagina, idLoja, idSituacao);
+
+        // Insere os pedidos na tabela.
         insertOrders(pedidos);
 
+        // Coloca novamente o evento de clique em qualquer checkbox de pedido.
         document.querySelectorAll("#t-body-orders input[type='checkbox']").forEach(checkbox => {
+            // Chama a função de atualização da contagem de pedidos selecionados.
             checkbox.addEventListener("change", atualizarSelecaoPedidos);
         });
 
+        // Remove a tela de loading e adiciona a tela/tabela de pedidos (1/3).
         document.getElementById("loading-content-orders").style.display = "none";
         document.getElementById("orders-content").style.display = "block";
     });
 
+    // Adiciona o evento de clique no botão "Página anterior".
     document.querySelector("#page-previous-orders a").addEventListener("click", async function () {
+        // Caso o botão seja  clicado e essa seja a página 2, ele irá para a página 1, portanto desative o botão.
         if (pagina == 2) {
+            // Desativar o botão de "Página anterior".
             document.getElementById("page-previous-orders").classList.add("disabled");
         }
 
+        // Se a página for maior que 1, vá para a página anterior.
         if (pagina > 1) {
+            // Diminui a página em 1.
             pagina--;
+
+            // Zera o array de pedidos do Bling.
             pedidos = [];
 
+            // Adiciona a tela de loading e remove a tela/tabela de pedidos (1/3).
             document.getElementById("loading-content-orders").style.display = "block";
             document.getElementById("orders-content").style.display = "none";
 
+            // Salva os pedidos selecionados.
             saveOrdersSelected();
 
-            document.getElementById("t-body-orders").innerHTML = "";
+            // Busca os pedidos do Bling.
             pedidos = await getOrders(pagina, idLoja, idSituacao);
+
+            // Insere os pedidos na tabela.
             insertOrders(pedidos);
 
-
+            // Atualiza o número da página atual.
             document.getElementById("current-page").innerHTML = pagina;
 
+            // Coloca novamente o evento de clique em qualquer checkbox de pedido.
             document.querySelectorAll("#t-body-orders input[type='checkbox']").forEach(checkbox => {
+                // Chama a função de atualização da contagem de pedidos selecionados.
                 checkbox.addEventListener("change", atualizarSelecaoPedidos);
             });
 
+            // Remove a tela de loading e adiciona a tela/tabela de pedidos (1/3).
             document.getElementById("loading-content-orders").style.display = "none";
             document.getElementById("orders-content").style.display = "block";
         }
     });
 
+    // Adiciona o evento de clique no botão "Próxima página".
     document.querySelector("#page-next-orders a").addEventListener("click", async function () {
+        // Aumenta a página em 1.
         pagina++;
+
+        // Zera o array de pedidos do Bling.
         pedidos = [];
 
+        // Adiciona a tela de loading e remove a tela/tabela de pedidos (1/3).
         document.getElementById("loading-content-orders").style.display = "block";
         document.getElementById("orders-content").style.display = "none";
 
+        // Salva os pedidos selecionados.
         saveOrdersSelected();
 
-        document.getElementById("t-body-orders").innerHTML = "";
+        // Busca os pedidos do Bling.
         pedidos = await getOrders(pagina, idLoja, idSituacao);
+
+        // Insere os pedidos na tabela.
         insertOrders(pedidos);
 
-
+        // Atualiza o número da página atual.
         document.getElementById("current-page").innerHTML = pagina;
 
+        // Ativa o botão de "Página anterior" (caso já não esteja ativado). Logicamente, se a página aumentar, ela será maior que 1, portanto, o botão de "Página anterior" pode ser usado.
         document.getElementById("page-previous-orders").classList.remove("disabled");
 
+        // Coloca novamente o evento de clique em qualquer checkbox de pedido.
         document.querySelectorAll("#t-body-orders input[type='checkbox']").forEach(checkbox => {
+            // Chama a função de atualização da contagem de pedidos selecionados.
             checkbox.addEventListener("change", atualizarSelecaoPedidos);
         });
 
+        // Remove a tela de loading e adiciona a tela/tabela de pedidos (1/3).
         document.getElementById("loading-content-orders").style.display = "none";
         document.getElementById("orders-content").style.display = "block";
     });
 }
 
+// Inicializa a página.
 initializePage();
 
 /**
@@ -612,7 +804,7 @@ document.getElementById("btn-create-list").addEventListener("click", async funct
 
     for (let chave in products) {
         let { codigo, quantidade } = products[chave];
-    
+
         // Se o código já existe no objeto final, apenas soma a quantidade
         if (uniqueProducts[codigo]) {
             uniqueProducts[codigo].quantidade += Number(quantidade);
